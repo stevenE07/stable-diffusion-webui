@@ -150,14 +150,14 @@ def check_run_python(code: str) -> bool:
 
 
 def git_fix_workspace(dir, name):
-    run(f'"{git}" -C "{dir}" fetch --refetch --no-auto-gc', f"Fetching all contents for {name}", f"Couldn't fetch {name}", live=True)
-    run(f'"{git}" -C "{dir}" gc --aggressive --prune=now', f"Pruning {name}", f"Couldn't prune {name}", live=True)
+    run(f'cd "{dir}" && "{git}" fetch --refetch --no-auto-gc', f"Fetching all contents for {name}", f"Couldn't fetch {name}", live=True)
+    run(f'cd "{dir}" && "{git}" gc --aggressive --prune=now', f"Pruning {name}", f"Couldn't prune {name}", live=True)
     return
 
 
 def run_git(dir, name, command, desc=None, errdesc=None, custom_env=None, live: bool = default_command_live, autofix=True):
     try:
-        return run(f'"{git}" -C "{dir}" {command}', desc=desc, errdesc=errdesc, custom_env=custom_env, live=live)
+        return run(f'cd "{dir}" && "{git}" {command}', desc=desc, errdesc=errdesc, custom_env=custom_env, live=live)
     except RuntimeError:
         if not autofix:
             raise
@@ -165,7 +165,7 @@ def run_git(dir, name, command, desc=None, errdesc=None, custom_env=None, live: 
     print(f"{errdesc}, attempting autofix...")
     git_fix_workspace(dir, name)
 
-    return run(f'"{git}" -C "{dir}" {command}', desc=desc, errdesc=errdesc, custom_env=custom_env, live=live)
+    return run(f'cd "{dir}" && "{git}" {command}', desc=desc, errdesc=errdesc, custom_env=custom_env, live=live)
 
 
 def git_clone(url, dir, name, commithash=None):
@@ -195,7 +195,7 @@ def git_clone(url, dir, name, commithash=None):
         raise
 
     if commithash is not None:
-        run(f'"{git}" -C "{dir}" checkout {commithash}', None, "Couldn't checkout {name}'s hash: {commithash}")
+        run(f'cd "{dir}" && "{git}" checkout {commithash}', None, "Couldn't checkout {name}'s hash: {commithash}")
 
 
 def git_pull_recursive(dir):
